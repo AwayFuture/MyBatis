@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gdufe.mapper/UserMapper">
+	<!-- 对象映射关系，类似于Hibernate中的  *.hbm.xml 映射文件 ,可以不配置（前提是实体属性名与数据库记录属性字段同名）！-->
+	<resultMap type="cn.gdufe.po.Person" id="personORM">
+		<!-- id为主键，result为普通属性 -->
+		<id property="userid" column="userid"/>
+		<result property="username" column="username"/>
+		<result property="sex" column="sex"/>
+		<result property="age" column="age"/>
+	</resultMap>
+	
+	<!-- 1. 静态SQL执行CUDR操作 -->
+	
+	<!-- 查询数据库记录信息，返回的类型是POJO -->
+	<select id="findAll" resultType="cn.gdufe.po.Person">
+		select * from user
+	</select>
+	<!-- 以下两种查询方法都可行！！！ 其中第2种方法的参数名可以任意命名-->
+	<!-- 	<select id="selectone" resultType="cn.gdufe.po.Person">
+				select * from user where userid = #{userid}
+			</select> -->
+	<select id="selectone" parameterType="String" resultMap="personORM">
+		select * from user where userid = #{id}
+	</select>
+	<!-- 添加记录insert,添加的对象类型是POJO 经测试，values()里面的名称必须跟Person类的相同，否则执行出错-->
+	<insert id="insert" parameterType="cn.gdufe.po.Person">
+		insert into user(userid,username,sex,age) values(#{userid},#{username},#{sex},#{age})
+	</insert>
+	<!-- 修改记录，修改对象类型是POJO -->
+	<update id="update" parameterType="cn.gdufe.po.Person">
+		update user set username = #{username},age = #{age}
+		where userid = #{userid}
+	</update>
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="cn.gdufe.po.Person">
+		delete from user where userid = #{userid}
+	</delete>
+	
+	
+	<!-- 2. 动态SQL执行UDR操作 -->
+	
+	<!-- 查询记录 -->
+	<select id="findAll-active" parameterType="cn.gdufe.po.Person" resultType="cn.gdufe.po.Person">
+		select * from user
+		<where>
+			<if test="username!=null">
+				username = #{username}
+			</if>
+			<if test="age!=null">
+				and age = #{age}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 修改记录 -->
+	<update id="update-active" parameterType="cn.gdufe.po.Person">
+		update user 
+		<set>
+			<if test="username!=null">
+				username = #{username},
+			</if>
+			<if test="age!=null">
+				age = #{age}
+			</if>
+		</set>
+		where userid = #{userid}
+	</update>
+	
+	<!-- 删除记录(3种批量删除方法：Array,List,Map) -->
+	<!-- 法1：Array删除法，此时collection属性的值只能是array,不能是其他，如arr,Array等 -->
+	<delete id="deleteArray" parameterType="String">
+		delete from user where userid in
+		<foreach collection="array" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	<!-- 法2：List批量删除法，此时collection属性的值只能是list -->
+	<delete id="deleteList" parameterType="String">
+		delete from user where userid in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	<!-- 法3： Map批量删除法 ,参数类型指定为Map/map,collection属性值必须为map中的key值，age也是key值-->
+	<!-- 在map中，通过key来取值 -->
+	<delete id="deleteMap" parameterType="map">
+		delete from user where userid in
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+		and age = #{age}
+	</delete>
+	
+</mapper>

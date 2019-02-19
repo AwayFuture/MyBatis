@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 1.配置开发环境 -->
+	<environments default="mysql">	<!-- 设置默认的数据库连接id为mysql -->
+		<environment id="mysql">
+			<!-- 指定事务管理类型JDBC|MANAGED -->
+			<!-- 学习：https://www.cnblogs.com/qingzhi/p/5881924.html -->
+			<transactionManager type="JDBC"></transactionManager>
+			<!-- 配置数据源(类型：POOLED|UNPOOLED|JNDI) -->
+			<!-- 学习：https://www.cnblogs.com/lovebean/p/9232880.html -->
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+				<property name="url" value="jdbc:mysql://localhost:3306/mybatis?serverTimezone=GMT%2B8"/>
+				<property name="username" value="root"/>
+				<property name="password" value="123456"/>
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<!-- 2.加载映射文件mapper -->
+	<mappers>
+		<mapper resource="cn/gdufe/mapper/UserMapper.xml"/>
+	</mappers>
+	
+</configuration>
